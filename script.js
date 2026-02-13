@@ -462,7 +462,9 @@ class FloatingText {
              if (this.pos.x < 0 || this.pos.x > window.innerWidth) this.vel.x *= -1;
              if (this.pos.y < 0 || this.pos.y > window.innerHeight) this.vel.y *= -1;
              // No life decay for finale messages
-             let targetScale = this.text.length > 50 ? 0.7 : 1; 
+             let baseScale = window.innerWidth < 768 ? 0.9 : 1;
+             let targetScale = this.text.length > 50 ? baseScale * 0.7 : baseScale;
+             
              if (this.scale < targetScale) this.scale += 0.05;
         } else {
              // Standard rising text
@@ -477,7 +479,8 @@ class FloatingText {
         ctx.translate(this.pos.x, this.pos.y);
         ctx.scale(this.scale, this.scale);
         
-        ctx.font = "italic 24px 'Montserrat'";
+        const fontSize = window.innerWidth < 768 ? 14 : 24;
+        ctx.font = `italic ${fontSize}px 'Montserrat'`;
         ctx.textAlign = "center";
 
         // Pass 1: Wide colored glow
