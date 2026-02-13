@@ -482,22 +482,47 @@ class FloatingText {
         const fontSize = window.innerWidth < 768 ? 14 : 24;
         ctx.font = `italic ${fontSize}px 'Montserrat'`;
         ctx.textAlign = "center";
+        
+        // Word Wrap Logic
+        const maxWidth = window.innerWidth < 768 ? window.innerWidth * 0.8 : 600;
+        const lineHeight = fontSize * 1.4;
+        const words = this.text.split(' ');
+        let line = '';
+        const lines = [];
 
-        // Pass 1: Wide colored glow
-        ctx.shadowColor = "rgba(255, 64, 129, 0.8)"; 
-        ctx.shadowBlur = 20;
-        ctx.fillStyle = "rgba(255, 64, 129, 0.5)";
-        ctx.fillText(this.text, 0, 0);
+        for(let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + ' ';
+            const metrics = ctx.measureText(testLine);
+            const testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                lines.push(line);
+                line = words[n] + ' ';
+            } else {
+                line = testLine;
+            }
+        }
+        lines.push(line);
 
-        // Pass 2: Tight intense glow
-        ctx.shadowBlur = 5;
-        ctx.fillStyle = "#ff80ab"; 
-        ctx.fillText(this.text, 0, 0);
+        // Draw each line
+        lines.forEach((l, i) => {
+            const yOffset = i * lineHeight - ((lines.length - 1) * lineHeight) / 2; // Center vertically
 
-        // Pass 3: White Core
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = "#ffffff";
-        ctx.fillText(this.text, 0, 0);
+            // Pass 1: Wide colored glow
+            ctx.shadowColor = "rgba(255, 64, 129, 0.8)"; 
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = "rgba(255, 64, 129, 0.5)";
+            ctx.fillText(l, 0, yOffset);
+
+            // Pass 2: Tight intense glow
+            ctx.shadowBlur = 5;
+            ctx.fillStyle = "#ff80ab"; 
+            ctx.fillText(l, 0, yOffset);
+
+            // Pass 3: White Core
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(l, 0, yOffset);
+        });
         
         ctx.restore();
     }
