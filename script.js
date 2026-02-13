@@ -243,7 +243,8 @@ class Nebula {
 class Star {
     constructor(w, h) {
         this.pos = new Vector2(Math.random() * w, Math.random() * h);
-        this.size = Math.random() * 1.5 + 0.5;
+        const isMobile = window.innerWidth < 768;
+        this.size = isMobile ? Math.random() * 0.8 + 0.2 : Math.random() * 1.5 + 0.5;
         this.baseSize = this.size;
         this.twinkleSpeed = Math.random() * 0.05 + 0.01;
         this.twinkleOffset = Math.random() * Math.PI * 2;
@@ -560,7 +561,25 @@ class Engine {
     init() {
         this.resize();
         
-        for(let i=0; i<CONFIG.starCount; i++) {
+        // Dynamic star count based on screen area to maintain density
+        // Base density: 100 stars for 1920x1080 (approx 2M pixels) -> 1 star per 20000px? 
+        // Actually 100 is low. Let's aim for higher density on mobile.
+        // If mobile (e.g. 375x667 = 250k px), 100 stars is 1 per 2500px (very dense).
+        // User said "too spread", meaning they want MORE stars (closer together) on mobile?
+        // Or "too big/too spread" might mean they look sparse.
+        // Let's try increasing density.
+        
+        const area = this.width * this.height;
+        const starCount = Math.floor(area / 4000); // e.g. 1920x1080 / 4000 = ~500 stars. Mobile 375x800 / 4000 = ~75 stars.
+        // Wait, if 100 was "too spread" (too few?), then 75 is fewer.
+        // Maybe "too spread" means they are too large?
+        // "stars spread on mobile is too big/ too spread"
+        // I will increase density (more stars) and decrease size.
+
+        this.stars = [];
+        const count = Math.max(100, Math.floor(area / 3000)); // Ensure at least 100
+        
+        for(let i=0; i<count; i++) {
             this.stars.push(new Star(this.width, this.height));
         }
 
